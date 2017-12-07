@@ -4,9 +4,6 @@ import scala.Int
 
 package object collections {
 
-  type Array[X] =
-    scala.Array[X]
-
   type Size =
     scala.Int
 
@@ -55,4 +52,7 @@ package object collections {
 
   type JVMArray[X] =
     scala.Array[X]
+
+  val JVMArray: scala.Array.type =
+    scala.Array
 }

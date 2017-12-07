@@ -5,6 +5,7 @@ import ohnosequences.stuff._
 sealed abstract class WArray {
 
   type Elements
+  def elements: JVMArray[Elements]
 
   def isEmpty: Boolean
   def length: Size
@@ -26,11 +27,19 @@ object Empty extends WArray {
   @inline final def isEmpty: Boolean =
     true
 
+  def elements: JVMArray[Elements] =
+    scala.Predef.???
+
   @inline final def length: Size =
     0
 }
 
 object WArray {
+
+  def singleton[A]: A -> Mon[A] =
+    λ { a =>
+      new NonEmpty(JVMArray(a)(tagOf(a)))
+    }
 
   type Mon[Z] =
     WArray { type Elements = Z }
@@ -53,13 +62,33 @@ object WArray {
       }
     }
 
-  private final def arraysFromTag[A]: Tag[A] -> (Size -> JVMArray[A]) =
+  final def map[X, Y]: (X -> Y) -> (Mon[X] -> Mon[Y]) =
+    λ { f =>
+      λ { xs =>
+        if (xs.isEmpty) unit[Y]
+        else {
+
+          val ys =
+            arrayFromValue(f at xs.elements(0)) at xs.length
+
+          var i = 1
+          while (i < xs.length) {
+            ys(i) = f(xs.elements(i))
+            i = i + 1
+          }
+
+          new NonEmpty(ys)
+        }
+      }
+    }
+
+  private final def arrayFromTag[A]: Tag[A] -> (Size -> JVMArray[A]) =
     λ { tag =>
       λ { tag.newArray(_: Size) }
     }
 
   @inline private final def arrayFromValue[A]: A -> (Size -> JVMArray[A]) =
-    tagOf[A] >-> arraysFromTag
+    tagOf[A] >-> arrayFromTag
 
   private final def joinNonEmptyArrays[A]
     : JVMArray[A] × JVMArray[A] -> NonEmpty[A] =

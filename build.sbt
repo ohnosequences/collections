@@ -57,6 +57,9 @@ wartremoverErrors in (Compile, compile) := Warts.allBut(Wart.AsInstanceOf,
 wartremoverWarnings in (Compile, compile) := Warts.allBut(Wart.AsInstanceOf,
                                                           Wart.ArrayEquals)
 
+wartremoverExcluded ++= Seq(
+  baseDirectory.value / "src" / "main" / "scala" / "arrays.scala"
+)
 // shows time for each test:
 testOptions in Test += Tests.Argument("-oD")
 // disables parallel execs
