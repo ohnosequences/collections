@@ -1,20 +1,63 @@
-name          := "collections"
-organization  := "ohnosequences"
-description   := "collections project"
+name := "collections"
+organization := "ohnosequences"
+description := "Scala collections"
+bucketSuffix := "era7.com"
 
-bucketSuffix  := "era7.com"
+scalaVersion := "2.12.4"
+addCompilerPlugin("ohnosequences" %% "contexts" % "0.5.0")
 
-// libraryDependencies ++= Seq()
+libraryDependencies ++= Seq(
+  "ohnosequences" %% "stuff" % "0.4.0-71-gf859db4",
+  "it.unimi.dsi" % "fastutil" % "8.1.1"
+) ++ testDependencies
 
+val testDependencies = Seq(
+  "org.scalatest" %% "scalatest" % "3.0.4" % Test
+)
 
-// // For resolving dependency versions conflicts:
-// dependencyOverrides ++= Set()
+dependencyOverrides += "org.scala-lang" % "scala-library" % "2.12.4"
 
-// // If you need to deploy this project as a Statika bundle:
-// generateStatikaMetadataIn(Compile)
+scalacOptions ++= Seq(
+  "-Xsource:2.13",
+  "-Xlint",
+  "-Xfatal-warnings",
+  "-Xlog-reflective-calls",
+  "-Ywarn-unused",
+  "-Ywarn-adapted-args",
+  "-opt-warnings:_",
+  "-unchecked",
+  "-Xstrict-inference",
+  "-Yno-predef",
+  "-Yno-imports",
+  "-Ywarn-unused-import",
+  "-Yno-adapted-args",
+  "-Ydelambdafy:method",
+  "-opt:l:inline",
+  "-opt-inline-from:<sources>",
+  "-opt:l:method"
+  // "-Xfuture",
+  // "-Xlog-free-types",
+  // "-Xlog-free-terms",
+  // "-Ydebug",
+  // "-explaintypes",
+  // "-uniqid",
+  // "-Yopt-log-inline", "_", // noisy
+)
 
-// // This includes tests sources in the assembled fat-jar:
-// fullClasspath in assembly := (fullClasspath in Test).value
+// scaladoc
+scalacOptions in (Compile, doc) ++= Seq("-groups")
+autoAPIMappings := true
 
-// // This turns on fat-jar publishing during release process:
-// publishFatArtifact in Release := true
+// scalafmt
+scalafmtVersion := "1.3.0"
+scalafmtOnCompile := true
+
+wartremoverErrors in (Compile, compile) := Warts.allBut(Wart.AsInstanceOf,
+                                                        Wart.ArrayEquals)
+wartremoverWarnings in (Compile, compile) := Warts.allBut(Wart.AsInstanceOf,
+                                                          Wart.ArrayEquals)
+
+// shows time for each test:
+testOptions in Test += Tests.Argument("-oD")
+// disables parallel execs
+parallelExecution in Test := false
