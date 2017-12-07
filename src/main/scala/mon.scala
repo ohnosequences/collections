@@ -46,6 +46,8 @@ object mon {
 
     object μ extends NaturalTransformation {
 
+      import Functor._
+
       type SourceCategory = Scala
       val sourceCategory = on.source
 
