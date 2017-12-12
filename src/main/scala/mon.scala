@@ -24,6 +24,9 @@ object mon {
       WArray.map
   }
 
+  type FreeMonoidMonad =
+    FreeMonoidMonad.type
+
   object FreeMonoidMonad extends Monad {
 
     type On =
@@ -50,4 +53,7 @@ object mon {
           scala.Predef.???
       }
   }
+
+  val kleisli: Category.is[KleisliCategory.Of[FreeMonoidMonad]] =
+    KleisliCategory of FreeMonoidMonad
 }
