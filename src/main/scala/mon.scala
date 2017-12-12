@@ -33,7 +33,8 @@ object mon {
       FreeMonoid
 
     val ι: Functor.Identity[Scala] ~> FreeMonoid =
-      new Between[Functor.Identity[Scala], FreeMonoid](Functor identity Scala, on) {
+      new Between[Functor.Identity[Scala], FreeMonoid](Functor identity Scala,
+                                                       on) {
 
         @inline
         final def apply[X]: X -> Mon[X] =
@@ -41,7 +42,8 @@ object mon {
       }
 
     val μ: (FreeMonoid ∘ FreeMonoid) ~> FreeMonoid =
-      new Between[FreeMonoid ∘ FreeMonoid, FreeMonoid](FreeMonoid ∘ FreeMonoid, FreeMonoid) {
+      new Between[FreeMonoid ∘ FreeMonoid, FreeMonoid](FreeMonoid ∘ FreeMonoid,
+                                                       FreeMonoid) {
 
         @inline
         final def apply[X]: Mon[Mon[X]] -> Mon[X] =
