@@ -1,11 +1,14 @@
 package ohnosequences.collections
 
-import ohnosequences.stuff._
+import ohnosequences.stuff._, NaturalTransformation._, Functor.{∘}
 
 object mon {
 
   type Mon[Z] =
     WArray { type Elements = Z }
+
+  type FreeMonoid =
+    FreeMonoid.type
 
   object FreeMonoid extends Functor {
 
@@ -23,48 +26,26 @@ object mon {
 
   object FreeMonoidMonad extends Monad {
 
-    type On = FreeMonoid.type
-    val on = FreeMonoid
+    type On =
+      FreeMonoid
 
-    object ι extends NaturalTransformation {
+    val on: Functor.is[FreeMonoid.type] =
+      FreeMonoid
 
-      type SourceCategory = Scala
-      val sourceCategory = on.source
+    val ι: Functor.Identity[Scala] ~> FreeMonoid =
+      new Between[Functor.Identity[Scala], FreeMonoid](Functor identity Scala, on) {
 
-      type TargetCategory = Scala
-      val targetCategory = on.target
+        @inline
+        final def apply[X]: X -> Mon[X] =
+          WArray.singleton
+      }
 
-      type SourceFunctor = Functor.is[Functor.Identity[OnCat]]
-      val sourceFunctor: SourceFunctor = Functor.identity(Scala)
+    val μ: (FreeMonoid ∘ FreeMonoid) ~> FreeMonoid =
+      new Between[FreeMonoid ∘ FreeMonoid, FreeMonoid](FreeMonoid ∘ FreeMonoid, FreeMonoid) {
 
-      type TargetFunctor = Functor.is[On]
-      val targetFunctor = on
-
-      def apply[X]: X -> Mon[X] =
-        WArray.singleton
-    }
-
-    object μ extends NaturalTransformation {
-
-      import Functor._
-
-      type SourceCategory = Scala
-      val sourceCategory = on.source
-
-      type TargetCategory = Scala
-      val targetCategory = on.target
-
-      type SourceFunctor = (Functor.is[On] ∘ Functor.is[On])
-      val sourceFunctor: Functor.is[SourceFunctor] =
-        Functor.composition { FreeMonoid and FreeMonoid }
-
-      type TargetFunctor = Functor.is[On]
-      val targetFunctor = on
-
-      def apply[X]: Mon[Mon[X]] -> Mon[X] =
-        // TODO flatMap/flatten
-        scala.Predef.???
-    }
-
+        @inline
+        final def apply[X]: Mon[Mon[X]] -> Mon[X] =
+          scala.Predef.???
+      }
   }
 }

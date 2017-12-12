@@ -7,7 +7,7 @@ scalaVersion := "2.12.4"
 addCompilerPlugin("ohnosequences" %% "contexts" % "0.5.0")
 
 libraryDependencies ++= Seq(
-  "ohnosequences" %% "stuff" % "0.4.0-71-gf859db4",
+  "ohnosequences" %% "stuff" % "0.4.0-95-g636ded7",
   "it.unimi.dsi" % "fastutil" % "8.1.1"
 ) ++ testDependencies
 
