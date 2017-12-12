@@ -6,5 +6,5 @@ resolvers ++=
   )
 
 
-addSbtPlugin("com.lucidchart" % "sbt-scalafmt"      % "1.12")
+addSbtPlugin("com.lucidchart" % "sbt-scalafmt"      % "1.14")
 addSbtPlugin("ohnosequences"  % "nice-sbt-settings" % "0.9.0" )
