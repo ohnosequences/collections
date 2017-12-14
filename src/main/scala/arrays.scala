@@ -50,7 +50,7 @@ object WArray {
 
           var idx = 0
           while (idx < arr.length) {
-            arr.update(idx, generator(idx))
+            arr(idx) = generator(idx)
             idx = idx + 1
           }
 
