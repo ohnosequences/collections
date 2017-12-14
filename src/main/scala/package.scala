@@ -44,6 +44,9 @@ package object collections {
   type AnyRef =
     scala.AnyRef
 
+  def tag[X](implicit t: Tag[X]): Tag[X] =
+    scala.Predef.implicitly[Tag[X]]
+
   type Tag[X] =
     scala.reflect.ClassTag[X]
 

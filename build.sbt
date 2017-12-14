@@ -20,7 +20,7 @@ dependencyOverrides += "org.scala-lang" % "scala-library" % "2.12.4"
 scalacOptions ++= Seq(
   "-Xsource:2.13",
   "-Xlint",
-  "-Xfatal-warnings",
+  // "-Xfatal-warnings",
   "-Xlog-reflective-calls",
   "-Ywarn-unused",
   "-Ywarn-adapted-args",

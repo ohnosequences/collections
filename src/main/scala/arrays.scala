@@ -1,6 +1,7 @@
 package ohnosequences.collections
 
 import ohnosequences.stuff._
+import mon._
 
 sealed abstract class WArray {
 
@@ -22,7 +23,9 @@ final class NonEmpty[A](val elements: JVMArray[A]) extends WArray {
     elements.length
 }
 
-object Empty extends WArray {
+final class Empty[A] extends WArray {
+
+  type Elements = A
 
   @inline final def isEmpty: Boolean =
     true
@@ -36,19 +39,36 @@ object Empty extends WArray {
 
 object WArray {
 
-  def singleton[A]: A -> Mon[A] =
-    λ { a =>
-      new NonEmpty(JVMArray(a)(tagOf(a)))
+  def fill[A]: Size -> ((Index -> A) -> Mon[A]) =
+    λ { size =>
+      λ { generator =>
+        if (size == 0)
+          unit[A]
+        else {
+          val arr: JVMArray[A] =
+            arrayFromValue(generator(0))(size)
+
+          var idx = 0
+          while (idx < arr.length) {
+            arr.update(idx, generator(idx))
+            idx = idx + 1
+          }
+
+          new NonEmpty(arr)
+        }
+      }
     }
 
-  type Mon[Z] =
-    WArray { type Elements = Z }
+  def singleton[A]: A -> Mon[A] =
+    λ { a: A =>
+      new NonEmpty(JVMArray[A](a)(tagOf(a)))
+    }
 
   def unit[A]: Mon[A] =
-    Empty.asInstanceOf[Mon[A]]
+    new Empty[A]
 
-  @inline final private[collections] def tagOf[A]: A -> Tag[A] =
-    λ { a =>
+  @inline final def tagOf[A]: A -> Tag[A] =
+    λ { a: A =>
       a.asInstanceOf[AnyRef] match {
         case _: java.lang.Boolean   => Tag.Boolean.asInstanceOf[Tag[A]]
         case _: java.lang.Byte      => Tag.Byte.asInstanceOf[Tag[A]]
@@ -58,7 +78,9 @@ object WArray {
         case _: java.lang.Integer   => Tag.Int.asInstanceOf[Tag[A]]
         case _: java.lang.Long      => Tag.Long.asInstanceOf[Tag[A]]
         case _: java.lang.Short     => Tag.Short.asInstanceOf[Tag[A]]
-        case _                      => Tag(a.getClass)
+        case _: NonEmpty[_]         => tag[WArray].asInstanceOf[Tag[A]]
+        case _: Empty[_]            => tag[WArray].asInstanceOf[Tag[A]]
+        case _                      => tag[AnyRef].asInstanceOf[Tag[A]]
       }
     }
 
@@ -80,6 +102,11 @@ object WArray {
           new NonEmpty(ys)
         }
       }
+    }
+
+  def at[A]: Index -> (Mon[A] -> A) =
+    λ { n =>
+      λ { _.elements(n) }
     }
 
   private final def arrayFromTag[A]: Tag[A] -> (Size -> JVMArray[A]) =
