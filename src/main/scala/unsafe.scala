@@ -34,8 +34,8 @@ object unsafe {
         }
       }
 
-    @inline final def joinNonEmpty[A]
-      : JVMArray[A] × JVMArray[A] -> JVMArray[A] =
+    @inline
+    final def joinNonEmpty[A]: JVMArray[A] × JVMArray[A] -> JVMArray[A] =
       λ { arrs =>
         val arr1 = arrs.left
         val arr2 = arrs.right

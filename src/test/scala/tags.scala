@@ -13,7 +13,7 @@ class Tags extends org.scalatest.FunSuite {
 
   def printTag[A]: A -> scala.Unit =
     λ { a =>
-      println(s"value: ${a} tag: ${tagOf(a)}")
+      println(s"value: ${a} tag: ${unsafe.array.tagForArray(a)}")
     }
 
   test("examples") {
@@ -28,14 +28,12 @@ class Tags extends org.scalatest.FunSuite {
     val x2 = concat(singleton(2) and concat(x1 and singleton(2)))
     val x3 = singleton(x2)
     printTag(x2)
-    println(Tag(x2.elements.getClass))
 
     val z = fill(2) {
       λ { pos: Int =>
         pos
       }
     }
-    println(Tag(z.elements.getClass))
 
     val x = fill(2)(
       λ { idx: Int =>

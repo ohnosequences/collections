@@ -6,7 +6,6 @@ import mon._
 sealed abstract class WArray {
 
   type Elements
-  def elements: JVMArray[Elements]
 
   def isEmpty: Boolean
   def length: Size
@@ -32,9 +31,6 @@ final class Empty[A] extends WArray {
   @inline
   final def isEmpty: Boolean =
     true
-
-  def elements: JVMArray[Elements] =
-    scala.Predef.???
 
   @inline
   final def length: Size =
@@ -76,26 +72,25 @@ object WArray {
   final def map[X, Y]: (X -> Y) -> (Mon[X] -> Mon[Y]) =
     λ { f =>
       λ { xs =>
-        if (xs.isEmpty) unit[Y]
-        else {
+        xs match {
 
-          val ys =
-            unsafe.array.fromValue(f at xs.elements(0)) at xs.length
+          case xss: NonEmpty[X] => {
 
-          var i = 1
-          while (i < xs.length) {
-            ys(i) = f(xs.elements(i))
-            i = i + 1
+            val ys =
+              unsafe.array.fromValue(f at xss.elements(0)) at xss.length
+
+            var i = 1
+            while (i < xss.length) {
+              ys(i) = f(xss.elements(i))
+              i = i + 1
+            }
+
+            new NonEmpty(ys)
           }
 
-          new NonEmpty(ys)
+          case _ => unit[Y]
         }
       }
-    }
-
-  def at[A]: Index -> (Mon[A] -> A) =
-    λ { n =>
-      λ { _ elements n }
     }
 
   def concat[Z]: Mon[Z] × Mon[Z] -> Mon[Z] =
