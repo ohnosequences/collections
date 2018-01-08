@@ -45,10 +45,13 @@ object WArray {
         if (size == 0)
           unit[A]
         else {
-          val arr: JVMArray[A] =
-            unsafe.array.fromValue(generator(0))(size)
+          val zero = generator(0)
 
-          var idx = 0
+          val arr: JVMArray[A] = arrayFromValue(zero)(size)
+
+          arr(0) = zero
+
+          var idx = 1
           while (idx < arr.length) {
             arr(idx) = generator(idx)
             idx = idx + 1
@@ -112,6 +115,67 @@ object WArray {
           }
 
         case _ => ys
+      }
+    }
+
+  private def flattenNonTrivialArray[Z]: Mon[Mon[Z]] × Index -> Mon[Z] =
+    λ { nestedIndex =>
+      val nested: Mon[Mon[Z]] = nestedIndex.left
+      val index: Index        = nestedIndex.right
+      val length: Size        = nested.length // > 1
+
+      (length - index) match {
+        case 1 =>
+          nested.elements(index)
+        case _ =>
+          concat(
+            nested.elements(index) and
+              flattenNonTrivialArray(nested and (index + 1))
+          )
+      }
+    }
+
+  def flatten[Z]: Mon[Mon[Z]] -> Mon[Z] =
+    λ { nested =>
+      nested.length match {
+        case 0 => unit[Z]
+        case 1 => nested.elements(0)
+        case _ => flattenNonTrivialArray(nested and 0)
+      }
+    }
+
+  def iterate[A]: scala.Int -> ((A -> A) -> (A -> Mon[A])) =
+    λ { n =>
+      λ { f =>
+        λ { a0 =>
+          if (n == 0) WArray.unit
+          else {
+            // create array of size n with a0 in arr(0)
+            val arr: JVMArray[A] =
+              arrayFromValue(a0)(n)
+
+            var i = 1
+            while (i < arr.length) {
+              scala.Predef.println("Array: " + arr)
+
+              arr(i) = f(arr(i - 1))
+              i = i + 1
+            }
+
+            new NonEmpty(arr)
+          }
+        }
+      }
+    }
+
+  def fillConst[A]: Size -> (A -> Mon[A]) =
+    λ { size =>
+      λ { a0 =>
+        fill(size)(
+          λ { idx: Index =>
+            a0
+          }
+        )
       }
     }
 }
