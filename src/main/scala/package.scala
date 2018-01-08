@@ -44,18 +44,15 @@ package object collections {
   type AnyRef =
     scala.AnyRef
 
-  def tag[X](implicit t: Tag[X]): Tag[X] =
-    scala.Predef.implicitly[Tag[X]]
+  type JVMArray[X] =
+    scala.Array[X]
+
+  val JVMArray: scala.Array.type =
+    scala.Array
 
   type Tag[X] =
     scala.reflect.ClassTag[X]
 
   val Tag: scala.reflect.ClassTag.type =
     scala.reflect.ClassTag
-
-  type JVMArray[X] =
-    scala.Array[X]
-
-  val JVMArray: scala.Array.type =
-    scala.Array
 }
